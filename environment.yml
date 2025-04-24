@@ -1,4 +1,4 @@
-name: p4_qcml
+name: p4_qcml2
 channels:
   - pytorch
   - nvidia
@@ -14,7 +14,7 @@ dependencies:
   - pytest
   - python=3.12
   - psi4
-  - pytorch=2.5.1
+  - pytorch=2.5.1=*cpu*
   - jupyter
   - requests
   - setuptools

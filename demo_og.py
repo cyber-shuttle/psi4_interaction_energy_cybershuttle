@@ -6,7 +6,7 @@ from qcelemental.models import Molecule
 from qcportal.singlepoint import SinglepointDataset, SinglepointDatasetEntry, QCSpecification
 
 # need manybodydataset
-from qcportal.manybody import ManybodyDataset, ManybodyDatasetEntry, ManybodyDatasetSpecification, ManybodySpecification
+from qcportal.manybody import ManybodyDataset, ManybodyDatasetEntry, ManybodyDatasetSpecification
 
 #|%%--%%| <sb2BSlStsm|BVc6W6uOta>
 
@@ -123,24 +123,28 @@ try:
     ds = client.add_dataset("singlepoint", ds_name,
                             f"Dataset to contain {ds_name}")
     print(f"Added {ds_name} as dataset")
-    # Insert entries into dataset
-    entry_list = []
-    for idx, mol in enumerate(geoms):
-        extras = {
-            "name": 'S22-' + str(idx),
-            "idx": idx,
-        }
-        mol = Molecule.from_data(mol.dict(), extras=extras)
-        ent = SinglepointDatasetEntry(name=extras['name'], molecule=mol)
-        entry_list.append(ent)
-    ds.add_entries(entry_list)
-    print(f"Added {len(entry_list)} molecules to dataset")
 except Exception:
     ds = client.get_dataset("singlepoint", ds_name)
     print(f"Found {ds_name} dataset, using this instead")
     print(ds)
 
-#|%%--%%| <i8ICwzPWaD|dSW1A9HxYB>
+#|%%--%%| <i8ICwzPWaD|lezUmKPuJz>
+
+# Insert entries into dataset
+
+entry_list = []
+for idx, mol in enumerate(geoms):
+    extras = {
+        "name": 'S22-' + str(idx),
+        "idx": idx,
+    }
+    mol = Molecule.from_data(mol.dict(), extras=extras)
+    ent = SinglepointDatasetEntry(name=extras['name'], molecule=mol)
+    entry_list.append(ent)
+ds.add_entries(entry_list)
+print(f"Added {len(entry_list)} molecules to dataset")
+
+#|%%--%%| <lezUmKPuJz|dSW1A9HxYB>
 
 # Set the method and basis for lower requirements?
 method, basis = "hf", "sto-3g"
@@ -185,11 +189,11 @@ ds.status()
 ds_name_mb = 'S22-manybody'
 
 try:
-    ds_mb = client.add_dataset("manybody", ds_name_mb,
+    ds = client.add_dataset("manybody", ds_name_mb,
                             f"Dataset to contain {ds_name_mb}")
     print(f"Added {ds_name_mb} as dataset")
 except Exception:
-    ds_mb = client.get_dataset("manybody", ds_name_mb)
+    ds = client.get_dataset("singlepoint", ds_name_mb)
     print(f"Found {ds_name_mb} dataset, using this instead")
     print(ds)
 
@@ -197,18 +201,21 @@ except Exception:
 
 entry_list = []
 for idx, mol in enumerate(geoms):
-    print(mol)
-    ent = ManybodyDatasetEntry(name=f"S22-IE-{idx}", initial_molecule=mol)
+    extras = {
+        "name": 'S22-IE-' + str(idx),
+        "idx": idx,
+    }
+    mol = Molecule.from_data(mol.dict(), extras=extras)
+    ent = ManybodyDatasetEntry(name=extras['name'], molecule=mol)
     entry_list.append(ent)
-ds_mb.add_entries(entry_list)
+ds.add_entries(entry_list)
 print(f"Added {len(entry_list)} molecules to dataset")
 
 # Set the method and basis for lower requirements?
 method, basis = "hf", "sto-3g"
 
 # Set the QCSpecification (QM interaction energy in our case)
-
-qc_spec_mb = QCSpecification(
+spec = ManybodyDatasetSpecification(
     program="psi4",
     driver="energy",
     method=method,
@@ -217,83 +224,22 @@ qc_spec_mb = QCSpecification(
         "d_convergence": 8,
         "scf_type": "df",
     },
-)
-
-spec_mb = ManybodySpecification(
-    program='qcmanybody',
     bsse_correction=['cp', 'nocp'],
-    levels={
-        1: qc_spec_mb,
-        2: qc_spec_mb,
-    },
+    protocols={},
 )
-print("spec_mb", spec_mb)
-
-ds_mb.add_specification(name=f"psi4/{method}/{basis}", specification=spec_mb)
+ds.add_specification(name=f"psi4/{method}/{basis}", specification=spec)
 
 # Run the computations
-ds_mb.submit()
+ds.submit()
 print(f"Submitted {ds_name} dataset")
 
 # Check the status of the dataset - can repeatedly run this to see the progress
-ds_mb.status()
+ds.status()
 
 
-#|%%--%%| <g31JlHrgso|bYERcUudd0>
+#|%%--%%| <g31JlHrgso|OVVcYRXWUA>
 
-ds_mb.status()
-
-#|%%--%%| <bYERcUudd0|gauw3VIjl9>
-
-# Want multiple levels of theory
-
-methods = [
-    'hf', 'pbe', 'b3lyp',
-]
-basis_sets = [
-    '6-31g*'
-]
-
-for method in methods:
-    for basis in basis_sets:
-        # Set the QCSpecification (QM interaction energy in our case)
-        qc_spec_mb = QCSpecification(
-            program="psi4",
-            driver="energy",
-            method=method,
-            basis=basis,
-            keywords={
-                "d_convergence": 8,
-                "scf_type": "df",
-            },
-        )
-
-        spec_mb = ManybodySpecification(
-            program='qcmanybody',
-            bsse_correction=['cp'],
-            levels={
-                1: qc_spec_mb,
-                2: qc_spec_mb,
-            },
-        )
-        print("spec_mb", spec_mb)
-
-        ds_mb.add_specification(name=f"psi4/{method}/{basis}", specification=spec_mb)
-
-        # Run the computations
-        ds_mb.submit()
-        print(f"Submitted {ds_name} dataset")
-# Check the status of the dataset - can repeatedly run this to see the progress
-ds_mb.status()
-
-#|%%--%%| <gauw3VIjl9|qYukdPBXmi>
-
-ds_mb.status()
-
-#|%%--%%| <qYukdPBXmi|OVVcYRXWUA>
-
-!ps aux | grep qcfractal | awk '{ print $2 }' | xargs kill -9
-
+!ps aux | grep qcfractal-server | awk '{ print $2 }'
 #|%%--%%| <OVVcYRXWUA|5HSrFMKRJh>
 
 
