@@ -29,7 +29,13 @@ def setup_qcarchive_qcfractal(
             "port": None,
             "secret_key": None,
             "jwt_secret_key": None,
+            "update_frequency": 30,
         },
+    },
+    resources_config={
+        "cores_per_worker": 8,
+        "max_workers": 4,
+        "memory_per_worker": 16,
     },
     worker_sh="""#!/usr/bin/bash
 conda activate p4_qcml
@@ -79,6 +85,7 @@ conda activate p4_qcml
         with open(f"{QCF_BASE_FOLDER}/qcfractal_config.yaml", "w") as f:
             yaml.dump(config_yaml, f)
     if not os.path.exists(f"{QCF_BASE_FOLDER}/postgres"):
+        print(f"{QCF_BASE_FOLDER}/postgres")
         subprocess.check_output(
             [
                 "qcfractal-server",
@@ -113,11 +120,11 @@ server:
   verify: False
 
 executors:
-  notcpuqueue:
+  cpuqueue:
     type: local
-    cores_per_worker: 8
-    memory_per_worker: 64
-    max_workers: 4
+    cores_per_worker: {resources_config.get('cores_per_worker', '8')}
+    memory_per_worker: {resources_config.get('memory_per_worker', '8')}
+    max_workers: {resources_config.get('max_workers', '4')}
     queue_tags:                 
       - '*'
     environments:

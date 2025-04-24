@@ -1,8 +1,5 @@
 name: p4_qcml2
 channels:
-  - pytorch
-  - nvidia
-  - pyg
   - conda-forge
   - defaults
 dependencies:
@@ -12,17 +9,17 @@ dependencies:
   - psycopg2
   - postgresql
   - pytest
-  - python=3.12
+  - python>=3.10
   - psi4
-  - pytorch=2.5.1=*cpu*
+  - pytorch-cpu=2.5.1
   - jupyter
   - requests
   - setuptools
   - torchaudio
   - torchtriton
   - torchvision
-  - pyg
-  - pytorch-scatter=2.1.2=cpu*
+  - pytorch_geometric
+  - pytorch_scatter=2.1.2=cpu*
   - pytorch-minimize
   - matplotlib
   - pydantic=1,<2

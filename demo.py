@@ -8,7 +8,7 @@ from qcportal.singlepoint import SinglepointDataset, SinglepointDatasetEntry, QC
 # need manybodydataset
 from qcportal.manybody import ManybodyDataset, ManybodyDatasetEntry, ManybodyDatasetSpecification, ManybodySpecification
 
-#|%%--%%| <sb2BSlStsm|BVc6W6uOta>
+# |%%--%%| <sb2BSlStsm|BVc6W6uOta>
 
 from setup_qcfractal import setup_qcarchive_qcfractal
 import os
@@ -43,10 +43,15 @@ setup_qcarchive_qcfractal(
             "jwt_secret_key": None,
         },
     },
+    resources_config={
+            "update_frequency": 5,
+            "cores_per_worker": 8,
+            "max_workers": 3,
+            "memory_per_worker": 20,
+    }
 )
 
-
-#|%%--%%| <BVc6W6uOta|CwEhpqwLXX>
+# |%%--%%| <BVc6W6uOta|CwEhpqwLXX>
 
 !qcfractal-server --config=`pwd`/qcfractal/qcfractal_config.yaml start > qcfractal_server.log & disown
 
@@ -54,7 +59,7 @@ setup_qcarchive_qcfractal(
 #     ps aux | grep qcfractal-server | awk '{ print $2 }'
 #     kill -9 <PID>
 
-#|%%--%%| <CwEhpqwLXX|3HjtiyIuFg>
+# |%%--%%| <CwEhpqwLXX|3HjtiyIuFg>
 
 !qcfractal-compute-manager --config=`pwd`/qcfractal/resources.yml > qcfractal_compute.log & disown
 # NOTE kill server when finished by running:;
@@ -103,17 +108,17 @@ client.add_singlepoints(
 for rec in client.query_records():
     pp(rec.dict)
     pp(rec.error)
-#|%%--%%| <hMCmRgdGJ4|Z0wXrcgRq8>
+
+# |%%--%%| <hMCmRgdGJ4|Z0wXrcgRq8>
 
 # Now create S22 Interaction Energy Dataset
 from s22 import geoms
-
 
 # geoms is a list of qcelemental Molecule objects that can be used to create a
 # QCArchive dataset
 print(len(geoms), geoms)
 
-#|%%--%%| <Z0wXrcgRq8|i8ICwzPWaD>
+# |%%--%%| <Z0wXrcgRq8|i8ICwzPWaD>
 
 # Create client dataset
 
@@ -140,7 +145,7 @@ except Exception:
     print(f"Found {ds_name} dataset, using this instead")
     print(ds)
 
-#|%%--%%| <i8ICwzPWaD|dSW1A9HxYB>
+# |%%--%%| <i8ICwzPWaD|dSW1A9HxYB>
 
 # Set the method and basis for lower requirements?
 method, basis = "hf", "sto-3g"
@@ -167,18 +172,18 @@ spec = QCSpecification(
 )
 ds.add_specification(name=f"psi4/{method}/{basis}", specification=spec)
 
-#|%%--%%| <dSW1A9HxYB|dwYb9dbQNI>
+# |%%--%%| <dSW1A9HxYB|dwYb9dbQNI>
 
 # Run the computations
 ds.submit()
 print(f"Submitted {ds_name} dataset")
 
-#|%%--%%| <dwYb9dbQNI|2JMCNlehez>
+# |%%--%%| <dwYb9dbQNI|2JMCNlehez>
 
 # Check the status of the dataset - can repeatedly run this to see the progress
 ds.status()
 
-#|%%--%%| <2JMCNlehez|g31JlHrgso>
+# |%%--%%| <2JMCNlehez|g31JlHrgso>
 
 # Create client dataset
 
@@ -238,12 +243,11 @@ print(f"Submitted {ds_name} dataset")
 # Check the status of the dataset - can repeatedly run this to see the progress
 ds_mb.status()
 
-
-#|%%--%%| <g31JlHrgso|bYERcUudd0>
+# |%%--%%| <g31JlHrgso|bYERcUudd0>
 
 ds_mb.status()
 
-#|%%--%%| <bYERcUudd0|gauw3VIjl9>
+# |%%--%%| <bYERcUudd0|gauw3VIjl9>
 
 # Want multiple levels of theory
 
@@ -286,15 +290,16 @@ for method in methods:
 # Check the status of the dataset - can repeatedly run this to see the progress
 ds_mb.status()
 
-#|%%--%%| <gauw3VIjl9|qYukdPBXmi>
+# |%%--%%| <gauw3VIjl9|qYukdPBXmi>
 
-ds_mb.status()
+print(ds.status())
+print(ds_mb.status())
 
-#|%%--%%| <qYukdPBXmi|OVVcYRXWUA>
+# |%%--%%| <qYukdPBXmi|OVVcYRXWUA>
 
-!ps aux | grep qcfractal | awk '{ print $2 }' | xargs kill -9
+# Be careful with this for it can corrupt running status...
+# !ps aux | grep qcfractal | awk '{ print $2 }' | xargs kill -9
 
-#|%%--%%| <OVVcYRXWUA|5HSrFMKRJh>
-
+# |%%--%%| <OVVcYRXWUA|5HSrFMKRJh>
 
 
