@@ -308,7 +308,6 @@ pp(ds_mb)
 pp(ds_mb.computed_properties)
 # client.delete_dataset(dataset_id=2, delete_records=True)
 
-
 # |%%--%%| <ChCOdcBiXj|7RHL31QOoC>
 
 # Multipole Molecule assemble
@@ -372,7 +371,7 @@ df_hf_sto3g = df['psi4/hf/sto-3g']
 print(df_hf_sto3g.columns.tolist())
 print(df_hf_sto3g)
 
-#|%%--%%| <7RHL31QOoC|CDD1QjxHpc>
+# |%%--%%| <7RHL31QOoC|CDD1QjxHpc>
 
 h2kcalmol = qcel.constants.hartree2kcalmol
 
@@ -411,7 +410,7 @@ df_mb = ds_mb.compile_values(
 
 print(df_mb)
 
-#|%%--%%| <CDD1QjxHpc|XT87RegBfm>
+# |%%--%%| <CDD1QjxHpc|XT87RegBfm>
 
 from cdsg_plot import error_statistics
 
@@ -432,9 +431,7 @@ pd.set_option('display.max_rows', None)
 print(df_plot)
 print(df_plot[['HF/6-31G* error', 'PBE/6-31G* error', 'B3LYP/6-31G* error']].describe())
 
-
-#|%%--%%| <XT87RegBfm|dRiuyCtOh1>
-
+# |%%--%%| <XT87RegBfm|dRiuyCtOh1>
 
 error_statistics.violin_plot(
     df_plot,
@@ -446,11 +443,11 @@ error_statistics.violin_plot(
     output_filename="S22-IE.png",
 )
 
-#|%%--%%| <dRiuyCtOh1|fLqWKAJRoW>
+# |%%--%%| <dRiuyCtOh1|fLqWKAJRoW>
 r"""°°°
 ![S22-IE_violin.png](./S22-IE_violin.png)
 °°°"""
-#|%%--%%| <fLqWKAJRoW|8jtfD3m3S4>
+# |%%--%%| <fLqWKAJRoW|8jtfD3m3S4>
 
 import apnet_pt
 
@@ -459,7 +456,6 @@ ap2 = apnet_pt.atom_model_predict(
     compile=False,
 )
 print(ap2)
-
 
 # |%%--%%| <8jtfD3m3S4|OVVcYRXWUA>
 
