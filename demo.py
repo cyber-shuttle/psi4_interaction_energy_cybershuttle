@@ -74,8 +74,8 @@ setup_qcarchive_qcfractal(
 
 # Running a single job
 client = PortalClient("http://localhost:7777", verify=False)
-for rec in client.query_records():
-    pp(rec)
+# for rec in client.query_records():
+#     pp(rec)
 
 mol = Molecule.from_data(
     """
@@ -109,9 +109,9 @@ client.add_singlepoints(
     tag="local",
 )
 
-for rec in client.query_records():
-    pp(rec.dict)
-    pp(rec.error)
+# for rec in client.query_records():
+#     pp(rec.dict)
+#     pp(rec.error)
 
 # |%%--%%| <hMCmRgdGJ4|Z0wXrcgRq8>
 
@@ -425,12 +425,12 @@ df_plot = pd.DataFrame(
         'reference': ref_IEs,
     }
 )
-df_plot['HF/6-31G* error'] = df_plot['HF/6-31G*'] - df_plot['reference']
-df_plot['PBE/6-31G* error'] = df_plot['PBE/6-31G*'] - df_plot['reference']
-df_plot['B3LYP/6-31G* error'] = df_plot['B3LYP/6-31G*'] - df_plot['reference']
+df_plot['HF/6-31G* error'] = (df_plot['HF/6-31G*'] - df_plot['reference']).astype(float)
+df_plot['PBE/6-31G* error'] = (df_plot['PBE/6-31G*'] - df_plot['reference']).astype(float)
+df_plot['B3LYP/6-31G* error'] = (df_plot['B3LYP/6-31G*'] - df_plot['reference']).astype(float)
 pd.set_option('display.max_rows', None)
 print(df_plot)
-print(df_plot.describe())
+print(df_plot[['HF/6-31G* error', 'PBE/6-31G* error', 'B3LYP/6-31G* error']].describe())
 
 
 #|%%--%%| <XT87RegBfm|dRiuyCtOh1>
@@ -450,7 +450,18 @@ error_statistics.violin_plot(
 r"""°°°
 ![S22-IE_violin.png](./S22-IE_violin.png)
 °°°"""
-# |%%--%%| <fLqWKAJRoW|OVVcYRXWUA>
+#|%%--%%| <fLqWKAJRoW|8jtfD3m3S4>
+
+import apnet_pt
+
+ap2 = apnet_pt.atom_model_predict(
+    mols=df_hf_sto3g['qcel_molecule'].tolist(),
+    compile=False,
+)
+print(ap2)
+
+
+# |%%--%%| <8jtfD3m3S4|OVVcYRXWUA>
 
 # Be careful with this for it can corrupt running status...
 # !ps aux | grep qcfractal | awk '{ print $2 }' | xargs kill -9

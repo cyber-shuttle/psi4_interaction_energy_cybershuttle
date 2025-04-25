@@ -28,6 +28,6 @@ dependencies:
   - pip:
       - cdsg-tools
       - qm-tools-aw==1.4.3
-      - qcmlforge==0.0.2
+      - qcmlforge==0.0.4
       - qcfractal==0.59
       - qcfractalcompute==0.59
