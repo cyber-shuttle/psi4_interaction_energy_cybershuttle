@@ -29,10 +29,10 @@ def setup_qcarchive_qcfractal(
             "port": None,
             "secret_key": None,
             "jwt_secret_key": None,
-            "update_frequency": 30,
         },
     },
     resources_config={
+        "update_frequency": 15,
         "cores_per_worker": 8,
         "max_workers": 4,
         "memory_per_worker": 16,
@@ -111,7 +111,7 @@ conda activate p4_qcml
 cluster: theoryfs           # descriptive name to present to QCFractal server
 loglevel: INFO
 logfile: qcfractal-manager.log
-update_frequency: {db_config['api'].get('update_frequency', '60.0')}
+update_frequency: {resources_config.get('update_frequency', '60.0')}
 
 server:
   fractal_uri: "http://localhost:{db_config["api"]["port"]}"      # e.g. https://qcarchive.molssi.org

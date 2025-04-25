@@ -295,7 +295,13 @@ ds_mb.status()
 print(ds.status())
 print(ds_mb.status())
 
-# |%%--%%| <qYukdPBXmi|OVVcYRXWUA>
+#|%%--%%| <qYukdPBXmi|ChCOdcBiXj>
+
+print(ds)
+print(ds_mb)
+# client.delete_dataset(dataset_id=2, delete_records=True)
+
+# |%%--%%| <ChCOdcBiXj|OVVcYRXWUA>
 
 # Be careful with this for it can corrupt running status...
 # !ps aux | grep qcfractal | awk '{ print $2 }' | xargs kill -9
