@@ -1,6 +1,24 @@
 import qcelemental as qcel
 
 geoms = []
+ref_IEs = []
+# geoms.append(
+#     qcel.models.Molecule.from_data("""
+# 0 1
+# N  -1.578718  -0.046611   0.000000
+# H  -2.158621   0.136396  -0.809565
+# H  -2.158621   0.136396   0.809565
+# H  -0.849471   0.658193   0.000000
+# --
+# 0 1
+# N   1.578718   0.046611   0.000000
+# H   2.158621  -0.136396  -0.809565
+# H   0.849471  -0.658193   0.000000
+# H   2.158621  -0.136396   0.809565
+# units angstrom
+# """)
+# )
+# ref_IEs.append( -3.133)
 
 geoms.append(
     qcel.models.Molecule.from_data("""
@@ -17,6 +35,7 @@ units angstrom
 """)
 )
 
+ref_IEs.append( -4.989)
 geoms.append(
     qcel.models.Molecule.from_data("""
 0 1
@@ -36,6 +55,7 @@ units angstrom
 """)
 )
 
+ref_IEs.append(-18.753)
 geoms.append(
     qcel.models.Molecule.from_data("""
 0 1
@@ -56,6 +76,7 @@ H   3.117061   0.013701   0.000000
 units angstrom
 """)
 )
+ref_IEs.append(-16.062)
 
 # geoms.append(
 #     qcel.models.Molecule.from_data("""
@@ -90,6 +111,7 @@ units angstrom
 # """)
 # )
 #
+# ref_IEs.append(-20.641)
 # geoms.append(
 #     qcel.models.Molecule.from_data("""
 # 0 1
@@ -124,6 +146,7 @@ units angstrom
 # """)
 # )
 
+# ref_IEs.append(-16.934)
 # geoms.append(
 #     qcel.models.Molecule.from_data("""
 # 0 1
@@ -162,6 +185,7 @@ units angstrom
 # units angstrom
 # """)
 # )
+# ref_IEs.append(-16.660)
 
 geoms.append(
     qcel.models.Molecule.from_data("""
@@ -182,6 +206,7 @@ units angstrom
 """)
 )
 
+ref_IEs.append( -0.527)
 geoms.append(
     qcel.models.Molecule.from_data("""
 0 1
@@ -202,7 +227,7 @@ H   0.870464  -0.870464   2.783308
 units angstrom
 """)
 )
-
+ref_IEs.append( -1.472)
 # geoms.append(
 #     qcel.models.Molecule.from_data("""
 # 0 1
@@ -229,6 +254,7 @@ units angstrom
 # """)
 # )
 #
+# ref_IEs.append( -1.448)
 # geoms.append(
 #     qcel.models.Molecule.from_data("""
 # 0 1
@@ -262,6 +288,7 @@ units angstrom
 # """)
 # )
 #
+# ref_IEs.append( -2.654)
 # geoms.append(
 #     qcel.models.Molecule.from_data("""
 # 0 1
@@ -291,6 +318,7 @@ units angstrom
 # """)
 # )
 
+# ref_IEs.append( -4.255)
 # geoms.append(
 #     qcel.models.Molecule.from_data("""
 # 0 1
@@ -324,6 +352,7 @@ units angstrom
 # """)
 # )
 #
+# ref_IEs.append( -9.805)
 # geoms.append(
 #     qcel.models.Molecule.from_data("""
 # 0 1
@@ -361,6 +390,7 @@ units angstrom
 # """)
 # )
 #
+# ref_IEs.append( -4.524)
 # geoms.append(
 #     qcel.models.Molecule.from_data("""
 # 0 1
@@ -399,7 +429,7 @@ units angstrom
 # units angstrom
 # """)
 # )
-
+# ref_IEs.append(-11.730)
 geoms.append(
     qcel.models.Molecule.from_data("""
 0 1
@@ -419,6 +449,7 @@ units angstrom
 """)
 )
 
+ref_IEs.append( -1.496)
 geoms.append(
     qcel.models.Molecule.from_data("""
 0 1
@@ -442,7 +473,7 @@ H    -1.9015103    0.0979110    0.0000000
 units angstrom
 """)
 )
-
+ref_IEs.append( -3.275)
 # geoms.append(
 #     qcel.models.Molecule.from_data("""
 # 0 1
@@ -468,6 +499,7 @@ units angstrom
 # """)
 # )
 #
+# ref_IEs.append( -2.312)
 # geoms.append(
 #     qcel.models.Molecule.from_data("""
 # 0 1
@@ -492,6 +524,7 @@ units angstrom
 # """)
 # )
 #
+# ref_IEs.append( -4.541)
 # geoms.append(
 #     qcel.models.Molecule.from_data("""
 # 0 1
@@ -525,6 +558,7 @@ units angstrom
 # """)
 # )
 #
+# ref_IEs.append( -2.717)
 # geoms.append(
 #     qcel.models.Molecule.from_data("""
 # 0 1
@@ -562,6 +596,7 @@ units angstrom
 # """)
 # )
 #
+# ref_IEs.append( -5.627)
 # geoms.append(
 #     qcel.models.Molecule.from_data("""
 # 0 1
@@ -596,3 +631,4 @@ units angstrom
 # units angstrom
 # """)
 # )
+# ref_IEs.append( -7.097)

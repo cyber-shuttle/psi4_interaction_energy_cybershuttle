@@ -3,10 +3,14 @@ import psi4
 from qcportal import PortalClient
 from pprint import pprint as pp
 from qcelemental.models import Molecule
+import qcelemental as qcel
 from qcportal.singlepoint import SinglepointDataset, SinglepointDatasetEntry, QCSpecification
+import pandas as pd
+import numpy as np
 
 # need manybodydataset
 from qcportal.manybody import ManybodyDataset, ManybodyDatasetEntry, ManybodyDatasetSpecification, ManybodySpecification
+from pprint import pprint as pp
 
 # |%%--%%| <sb2BSlStsm|BVc6W6uOta>
 
@@ -112,7 +116,9 @@ for rec in client.query_records():
 # |%%--%%| <hMCmRgdGJ4|Z0wXrcgRq8>
 
 # Now create S22 Interaction Energy Dataset
-from s22 import geoms
+from s22 import geoms, ref_IEs
+
+assert len(geoms) == len(ref_IEs), "Number of geometries and reference interaction energies do not match"
 
 # geoms is a list of qcelemental Molecule objects that can be used to create a
 # QCArchive dataset
@@ -292,16 +298,159 @@ ds_mb.status()
 
 # |%%--%%| <gauw3VIjl9|qYukdPBXmi>
 
-print(ds.status())
-print(ds_mb.status())
+pp(ds.status())
+pp(ds_mb.status())
 
-#|%%--%%| <qYukdPBXmi|ChCOdcBiXj>
+# |%%--%%| <qYukdPBXmi|ChCOdcBiXj>
 
-print(ds)
-print(ds_mb)
+pp(ds)
+pp(ds_mb)
+pp(ds_mb.computed_properties)
 # client.delete_dataset(dataset_id=2, delete_records=True)
 
-# |%%--%%| <ChCOdcBiXj|OVVcYRXWUA>
+
+# |%%--%%| <ChCOdcBiXj|7RHL31QOoC>
+
+# Multipole Molecule assemble
+def assemble_multipole_data(record):
+    record_dict = record.dict()
+    qcvars = record_dict["properties"]
+    charges = qcvars["mbis charges"]
+    dipoles = qcvars["mbis dipoles"]
+    quadrupoles = qcvars["mbis quadrupoles"]
+    level_of_theory = f"{record_dict['specification']['method']}/{record_dict['specification']['basis']}"
+
+    n = len(charges)
+
+    charges = np.reshape(charges, (n, 1))
+    dipoles = np.reshape(dipoles, (n, 3))
+    quad = np.reshape(quadrupoles, (n, 3, 3))
+
+    quad = [q[np.triu_indices(3)] for q in quad]
+    quadrupoles = np.array(quad)
+    multipoles = np.concatenate(
+        [charges, dipoles, quadrupoles], axis=1)
+    return (
+    record.molecule,
+    qcvars['mbis volume ratios'],
+    qcvars['mbis valence widths'],
+    qcvars['mbis radial moments <r^2>'],
+    qcvars['mbis radial moments <r^3>'],
+    qcvars['mbis radial moments <r^4>'],
+    record.molecule.atomic_numbers,
+    record.molecule.geometry * qcel.constants.bohr2angstroms,
+    multipoles,
+    int(record.molecule.molecular_charge),
+    record.molecule.molecular_multiplicity,
+    )
+
+def assemble_multipole_data_value_names():
+    return [
+        'qcel_molecule',
+        "volume ratios",
+        "valence widths",
+        "radial moments <r^2>",
+        "radial moments <r^3>",
+        "radial moments <r^4>",
+        "Z",
+        "R",
+        "cartesian_multipoles",
+        "TQ",
+        "molecular_multiplicity"
+    ]
+
+df = ds.compile_values(
+    value_call=assemble_multipole_data,
+    value_names=assemble_multipole_data_value_names(),
+    unpack=True,
+)
+print(df)
+pp(df.columns.tolist())
+print(df['psi4/hf/sto-3g'])
+pp(df['psi4/hf/sto-3g'].columns.tolist())
+df_hf_sto3g = df['psi4/hf/sto-3g']
+print(df_hf_sto3g.columns.tolist())
+print(df_hf_sto3g)
+
+#|%%--%%| <7RHL31QOoC|CDD1QjxHpc>
+
+h2kcalmol = qcel.constants.hartree2kcalmol
+
+def assemble_data(record):
+    record_dict = record.dict()
+    qcvars = record_dict["properties"]
+    level_of_theory = f"{record_dict['specification']['levels'][2]['method']}/{record_dict['specification']['levels'][2]['basis']}"
+    CP_IE = qcvars['results']['cp_corrected_interaction_energy'] * h2kcalmol
+    NOCP_IE = qcvars['results'].get('nocp_corrected_interaction_energy', np.nan) * h2kcalmol
+    return (
+    record.initial_molecule,
+    CP_IE,
+    NOCP_IE,
+    record.initial_molecule.atomic_numbers,
+    record.initial_molecule.geometry * qcel.constants.bohr2angstroms,
+    int(record.initial_molecule.molecular_charge),
+    record.initial_molecule.molecular_multiplicity,
+    )
+
+def assemble_data_value_names():
+    return [
+        'qcel_molecule',
+        "CP_IE",
+        "NOCP_IE",
+        "Z",
+        "R",
+        "TQ",
+        "molecular_multiplicity"
+    ]
+
+df_mb = ds_mb.compile_values(
+    value_call=assemble_data,
+    value_names=assemble_data_value_names(),
+    unpack=True,
+)
+
+print(df_mb)
+
+#|%%--%%| <CDD1QjxHpc|XT87RegBfm>
+
+from cdsg_plot import error_statistics
+
+pp(df_mb.columns.tolist())
+
+df_plot = pd.DataFrame(
+    {
+        "HF/6-31G*": df_mb["psi4/hf/6-31g*"]["CP_IE"],
+        "PBE/6-31G*": df_mb["psi4/pbe/6-31g*"]["CP_IE"],
+        "B3LYP/6-31G*": df_mb["psi4/b3lyp/6-31g*"]["CP_IE"],
+        'reference': ref_IEs,
+    }
+)
+df_plot['HF/6-31G* error'] = df_plot['HF/6-31G*'] - df_plot['reference']
+df_plot['PBE/6-31G* error'] = df_plot['PBE/6-31G*'] - df_plot['reference']
+df_plot['B3LYP/6-31G* error'] = df_plot['B3LYP/6-31G*'] - df_plot['reference']
+pd.set_option('display.max_rows', None)
+print(df_plot)
+print(df_plot.describe())
+
+
+#|%%--%%| <XT87RegBfm|dRiuyCtOh1>
+
+
+error_statistics.violin_plot(
+    df_plot,
+    df_labels_and_columns={
+        "HF/6-31G*": "HF/6-31G* error",
+        "PBE/6-31G*": "PBE/6-31G* error",
+        "B3LYP/6-31G*": "B3LYP/6-31G* error",
+    },
+    output_filename="S22-IE.png",
+)
+
+#|%%--%%| <dRiuyCtOh1|fLqWKAJRoW>
+r"""°°°
+![S22-IE_violin.png](./S22-IE_violin.png)
+°°°"""
+# |%%--%%| <fLqWKAJRoW|OVVcYRXWUA>
 
 # Be careful with this for it can corrupt running status...
 # !ps aux | grep qcfractal | awk '{ print $2 }' | xargs kill -9
