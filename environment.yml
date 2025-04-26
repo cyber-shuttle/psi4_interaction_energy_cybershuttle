@@ -1,4 +1,4 @@
-name: p4_qcml2
+name: p4_qcml
 channels:
   - conda-forge
   - defaults
@@ -30,4 +30,5 @@ dependencies:
       - qm-tools-aw==1.4.3
       - qcmlforge==0.0.4
       - qcfractal==0.59
+      - qcmanybody
       - qcfractalcompute==0.59

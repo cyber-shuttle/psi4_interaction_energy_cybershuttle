@@ -451,13 +451,45 @@ r"""°°°
 
 import apnet_pt
 
-ap2 = apnet_pt.atom_model_predict(
+predicted_charges, predicted_dipoles, predicted_quadruples = apnet_pt.pretrained_models.atom_model_predict(
     mols=df_hf_sto3g['qcel_molecule'].tolist(),
     compile=False,
 )
-print(ap2)
+# Printing out predicted multipoles from pre-trained models
+print(df_hf_sto3g['qcel_molecule'][0])
+print(f"{predicted_charges[0] = }")
+print(f"{predicted_dipoles[0] = }")
+print(f"{predicted_quadruples[0] = }")
 
-# |%%--%%| <8jtfD3m3S4|OVVcYRXWUA>
+apnet2_ies_predicted = apnet_pt.pretrained_models.apnet2_model_predict(
+    mols=df_hf_sto3g['qcel_molecule'].tolist(),
+    compile=False,
+)
+# [[total, eletrostatic, induction, exchange, dispersion]]
+print(apnet2_ies_predicted[0])
+
+#|%%--%%| <8jtfD3m3S4|nxmLPrfAfx>
+
+# AP-Net2 IE
+df_plot['APNet2'] = apnet2_ies_predicted[:, 0]
+df_plot['APNet2 error'] = (df_plot['APNet2'] - df_plot['reference']).astype(float)
+error_statistics.violin_plot(
+    df_plot,
+    df_labels_and_columns={
+        "HF/6-31G*": "HF/6-31G* error",
+        "PBE/6-31G*": "PBE/6-31G* error",
+        "B3LYP/6-31G*": "B3LYP/6-31G* error",
+        "APNet2": "APNet2 error",
+    },
+    output_filename="S22-IE-AP2.png",
+)
+
+#|%%--%%| <nxmLPrfAfx|SO9JL7ZN86>
+r"""°°°
+![S22-IE-AP2_violin.png](./S22-IE-AP2_violin.png)
+°°°"""
+
+# |%%--%%| <SO9JL7ZN86|OVVcYRXWUA>
 
 # Be careful with this for it can corrupt running status...
 # !ps aux | grep qcfractal | awk '{ print $2 }' | xargs kill -9
