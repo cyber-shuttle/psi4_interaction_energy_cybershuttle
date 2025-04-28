@@ -7,6 +7,7 @@ import qcelemental as qcel
 from qcportal.singlepoint import SinglepointDataset, SinglepointDatasetEntry, QCSpecification
 import pandas as pd
 import numpy as np
+import re
 
 # need manybodydataset
 from qcportal.manybody import ManybodyDataset, ManybodyDatasetEntry, ManybodyDatasetSpecification, ManybodySpecification
@@ -418,12 +419,17 @@ pp(df_mb.columns.tolist())
 
 df_plot = pd.DataFrame(
     {
+        "qcel_molecule": df_mb["psi4/hf/sto-3g"]["qcel_molecule"],
         "HF/6-31G*": df_mb["psi4/hf/6-31g*"]["CP_IE"],
         "PBE/6-31G*": df_mb["psi4/pbe/6-31g*"]["CP_IE"],
         "B3LYP/6-31G*": df_mb["psi4/b3lyp/6-31g*"]["CP_IE"],
         'reference': ref_IEs,
     }
 )
+id = [int(i[7:]) for i in df_plot.index]
+df_plot['id'] = id
+df_plot.sort_values(by='id', inplace=True, ascending=True)
+df_plot['reference'] = ref_IEs
 df_plot['HF/6-31G* error'] = (df_plot['HF/6-31G*'] - df_plot['reference']).astype(float)
 df_plot['PBE/6-31G* error'] = (df_plot['PBE/6-31G*'] - df_plot['reference']).astype(float)
 df_plot['B3LYP/6-31G* error'] = (df_plot['B3LYP/6-31G*'] - df_plot['reference']).astype(float)
@@ -441,13 +447,10 @@ error_statistics.violin_plot(
         "B3LYP/6-31G*": "B3LYP/6-31G* error",
     },
     output_filename="S22-IE.png",
+    figure_size=(8, 6),
 )
 
-# |%%--%%| <dRiuyCtOh1|fLqWKAJRoW>
-r"""°°°
-![S22-IE_violin.png](./S22-IE_violin.png)
-°°°"""
-# |%%--%%| <fLqWKAJRoW|8jtfD3m3S4>
+# |%%--%%| <dRiuyCtOh1|8jtfD3m3S4>
 
 import apnet_pt
 
@@ -468,7 +471,7 @@ apnet2_ies_predicted = apnet_pt.pretrained_models.apnet2_model_predict(
 # [[total, eletrostatic, induction, exchange, dispersion]]
 print(apnet2_ies_predicted[0])
 
-#|%%--%%| <8jtfD3m3S4|nxmLPrfAfx>
+# |%%--%%| <8jtfD3m3S4|nxmLPrfAfx>
 
 # AP-Net2 IE
 df_plot['APNet2'] = apnet2_ies_predicted[:, 0]
@@ -482,14 +485,80 @@ error_statistics.violin_plot(
         "APNet2": "APNet2 error",
     },
     output_filename="S22-IE-AP2.png",
+    figure_size=(4, 4),
 )
 
-#|%%--%%| <nxmLPrfAfx|SO9JL7ZN86>
-r"""°°°
-![S22-IE-AP2_violin.png](./S22-IE-AP2_violin.png)
-°°°"""
+# |%%--%%| <nxmLPrfAfx|XtMJQEokjd>
 
-# |%%--%%| <SO9JL7ZN86|OVVcYRXWUA>
+# Training models on new QM data for Transfer Learning Task
+
+from apnet_pt import pairwise_datasets
+
+print(
+    df_plot['qcel_molecule'].tolist(),
+    df_plot['PBE/6-31G*'].tolist(),
+)
+print(len(df_plot['qcel_molecule'].tolist()))
+
+ds = pairwise_datasets.apnet2_module_dataset(
+    root="data_dir",
+    spec_type=None,
+    atom_model=apnet_pt.AtomModels.ap2_atom_model.AtomModel().set_pretrained_model(model_id=0),
+    qcel_molecules=df_plot['qcel_molecule'].tolist(),
+    energy_labels=df_plot['PBE/6-31G*'].tolist(),
+    skip_compile=True,
+    force_reprocess=True,
+    atomic_batch_size=4,
+    prebatched=False,
+    in_memory=True,
+    batch_size=2,
+    # datapoint_storage_n_objects=4,
+)
+print("APNet2 dataset created")
+print(ds)
+print(ds.data)
+
+# |%%--%%| <XtMJQEokjd|xXslqNQSRI>
+
+# Transfer Learning APNet2 model on computed QM data
+from apnet_pt.AtomPairwiseModels.apnet2 import APNet2Model
+
+ap2 = APNet2Model(dataset=ds).set_pretrained_model(model_id=0)
+print(ap2)
+
+# |%%--%%| <xXslqNQSRI|5PzkTYRluz>
+
+print(ds)
+ap2.train(
+    n_epochs=50,
+    transfer_learning=True,
+    skip_compile=True,
+    model_path="apnet2_transfer_learning.pt",
+)
+print(ap2)
+
+#|%%--%%| <5PzkTYRluz|KPOeFMBhWm>
+
+# AP-Net2 IE
+apnet2_ies_predicted = ap2.predict_qcel_mols(
+    mols=df_hf_sto3g['qcel_molecule'].tolist(),
+)
+df_plot['APNet2'] = apnet2_ies_predicted[:, 0]
+df_plot['APNet2 error'] = (df_plot['APNet2'] - df_plot['reference']).astype(float)
+
+error_statistics.violin_plot(
+    df_plot,
+    df_labels_and_columns={
+        "HF/6-31G*": "HF/6-31G* error",
+        "PBE/6-31G*": "PBE/6-31G* error",
+        "B3LYP/6-31G*": "B3LYP/6-31G* error",
+        "APNet2": "APNet2 error",
+    },
+    output_filename="S22-IE-AP2.png",
+    figure_size=(4, 4),
+)
+
+# |%%--%%| <KPOeFMBhWm|OVVcYRXWUA>
 
 # Be careful with this for it can corrupt running status...
 # !ps aux | grep qcfractal | awk '{ print $2 }' | xargs kill -9
