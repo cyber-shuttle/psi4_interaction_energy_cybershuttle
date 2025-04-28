@@ -8,6 +8,7 @@ from qcportal.singlepoint import SinglepointDataset, SinglepointDatasetEntry, QC
 import pandas as pd
 import numpy as np
 import re
+from qm_tools_aw import tools
 
 # need manybodydataset
 from qcportal.manybody import ManybodyDataset, ManybodyDatasetEntry, ManybodyDatasetSpecification, ManybodySpecification
@@ -28,9 +29,9 @@ setup_qcarchive_qcfractal(
         "allow_unauthenticated_read": None,
         "logfile": None,
         "loglevel": None,
-        "service_frequency": 10,
+        "service_frequency": 5,
         "max_active_services": None,
-        "heartbeat_frequency": None,
+        "heartbeat_frequency": 60,
         "log_access": None,
         "database": {
             "base_folder": None,
@@ -179,7 +180,24 @@ spec = QCSpecification(
 )
 ds.add_specification(name=f"psi4/{method}/{basis}", specification=spec)
 
-# |%%--%%| <dSW1A9HxYB|dwYb9dbQNI>
+# |%%--%%| <dSW1A9HxYB|vMkm00fo00>
+
+# Set the method and basis for lower requirements?
+method, basis = "SAPT0", "cc-pvdz"
+
+# Set the QCSpecification (QM interaction energy in our case)
+spec = QCSpecification(
+    program="psi4",
+    driver="energy",
+    method=method,
+    basis=basis,
+    keywords={
+        "scf_type": "df",
+    },
+)
+ds.add_specification(name=f"psi4/{method}/{basis}", specification=spec)
+
+# |%%--%%| <vMkm00fo00|dwYb9dbQNI>
 
 # Run the computations
 ds.submit()
@@ -315,34 +333,59 @@ pp(ds_mb.computed_properties)
 def assemble_multipole_data(record):
     record_dict = record.dict()
     qcvars = record_dict["properties"]
-    charges = qcvars["mbis charges"]
-    dipoles = qcvars["mbis dipoles"]
-    quadrupoles = qcvars["mbis quadrupoles"]
     level_of_theory = f"{record_dict['specification']['method']}/{record_dict['specification']['basis']}"
+    sapt_energies = np.array([np.nan, np.nan, np.nan, np.nan, np.nan])
+    if "mbis charges" in qcvars:
+        charges = qcvars["mbis charges"]
+        dipoles = qcvars["mbis dipoles"]
+        quadrupoles = qcvars["mbis quadrupoles"]
+        n = len(charges)
+        charges = np.reshape(charges, (n, 1))
+        dipoles = np.reshape(dipoles, (n, 3))
+        quad = np.reshape(quadrupoles, (n, 3, 3))
 
-    n = len(charges)
+        quad = [q[np.triu_indices(3)] for q in quad]
+        quadrupoles = np.array(quad)
+        multipoles = np.concatenate(
+            [charges, dipoles, quadrupoles], axis=1)
+        return (
+        record.molecule,
+        qcvars['mbis volume ratios'],
+        qcvars['mbis valence widths'],
+        qcvars['mbis radial moments <r^2>'],
+        qcvars['mbis radial moments <r^3>'],
+        qcvars['mbis radial moments <r^4>'],
+        record.molecule.atomic_numbers,
+        record.molecule.geometry * qcel.constants.bohr2angstroms,
+        multipoles,
+        int(record.molecule.molecular_charge),
+        record.molecule.molecular_multiplicity,
+        sapt_energies,
+        )
+    else:
+        sapt_energies[0] = qcvars['sapt total energy']
+        sapt_energies[1] = qcvars['sapt elst energy']
+        sapt_energies[2] = qcvars['sapt exch energy']
+        sapt_energies[3] = qcvars['sapt ind energy']
+        sapt_energies[4] = qcvars['sapt disp energy']
+        # pp(record_dict)
+        return (
+        record.molecule,
+        None,
+        None,
+        None,
+        None,
+        None,
+        record.molecule.atomic_numbers,
+        record.molecule.geometry * qcel.constants.bohr2angstroms,
+        None,
+        int(record.molecule.molecular_charge),
+        record.molecule.molecular_multiplicity,
+        sapt_energies,
+        )
 
-    charges = np.reshape(charges, (n, 1))
-    dipoles = np.reshape(dipoles, (n, 3))
-    quad = np.reshape(quadrupoles, (n, 3, 3))
 
-    quad = [q[np.triu_indices(3)] for q in quad]
-    quadrupoles = np.array(quad)
-    multipoles = np.concatenate(
-        [charges, dipoles, quadrupoles], axis=1)
-    return (
-    record.molecule,
-    qcvars['mbis volume ratios'],
-    qcvars['mbis valence widths'],
-    qcvars['mbis radial moments <r^2>'],
-    qcvars['mbis radial moments <r^3>'],
-    qcvars['mbis radial moments <r^4>'],
-    record.molecule.atomic_numbers,
-    record.molecule.geometry * qcel.constants.bohr2angstroms,
-    multipoles,
-    int(record.molecule.molecular_charge),
-    record.molecule.molecular_multiplicity,
-    )
+
 
 def assemble_multipole_data_value_names():
     return [
@@ -356,7 +399,8 @@ def assemble_multipole_data_value_names():
         "R",
         "cartesian_multipoles",
         "TQ",
-        "molecular_multiplicity"
+        "molecular_multiplicity",
+        "SAPT Energies"
     ]
 
 df = ds.compile_values(
@@ -364,13 +408,13 @@ df = ds.compile_values(
     value_names=assemble_multipole_data_value_names(),
     unpack=True,
 )
-print(df)
+# print(df)
 pp(df.columns.tolist())
 print(df['psi4/hf/sto-3g'])
 pp(df['psi4/hf/sto-3g'].columns.tolist())
-df_hf_sto3g = df['psi4/hf/sto-3g']
-print(df_hf_sto3g.columns.tolist())
-print(df_hf_sto3g)
+df_sapt0 = df['psi4/SAPT0/cc-pvdz']
+print(df_sapt0.columns.tolist())
+print(df_sapt0)
 
 # |%%--%%| <7RHL31QOoC|CDD1QjxHpc>
 
@@ -416,16 +460,22 @@ print(df_mb)
 from cdsg_plot import error_statistics
 
 pp(df_mb.columns.tolist())
+print(len(df_sapt0))
+print(len(df_sapt0['SAPT Energies']))
+print(len(df_sapt0['SAPT Energies'].apply(lambda x: x[0] * h2kcalmol)))
 
+df_sapt0['sapt0 total energes'] = df_sapt0['SAPT Energies'].apply(lambda x: x[0] * h2kcalmol)
+print(df_sapt0['sapt0 total energes'])
 df_plot = pd.DataFrame(
     {
         "qcel_molecule": df_mb["psi4/hf/sto-3g"]["qcel_molecule"],
         "HF/6-31G*": df_mb["psi4/hf/6-31g*"]["CP_IE"],
         "PBE/6-31G*": df_mb["psi4/pbe/6-31g*"]["CP_IE"],
         "B3LYP/6-31G*": df_mb["psi4/b3lyp/6-31g*"]["CP_IE"],
-        'reference': ref_IEs,
+        'SAPT0/cc-pvdz': df_sapt0['sapt0 total energes'].values,
     }
 )
+print(df_plot)
 id = [int(i[7:]) for i in df_plot.index]
 df_plot['id'] = id
 df_plot.sort_values(by='id', inplace=True, ascending=True)
@@ -433,6 +483,7 @@ df_plot['reference'] = ref_IEs
 df_plot['HF/6-31G* error'] = (df_plot['HF/6-31G*'] - df_plot['reference']).astype(float)
 df_plot['PBE/6-31G* error'] = (df_plot['PBE/6-31G*'] - df_plot['reference']).astype(float)
 df_plot['B3LYP/6-31G* error'] = (df_plot['B3LYP/6-31G*'] - df_plot['reference']).astype(float)
+df_plot['SAPT0/cc-pvdz error'] = (df_plot['SAPT0/cc-pvdz'] - df_plot['reference']).astype(float)
 pd.set_option('display.max_rows', None)
 print(df_plot)
 print(df_plot[['HF/6-31G* error', 'PBE/6-31G* error', 'B3LYP/6-31G* error']].describe())
@@ -445,6 +496,7 @@ error_statistics.violin_plot(
         "HF/6-31G*": "HF/6-31G* error",
         "PBE/6-31G*": "PBE/6-31G* error",
         "B3LYP/6-31G*": "B3LYP/6-31G* error",
+        "SAPT0/cc-pvdz": "SAPT0/cc-pvdz error",
     },
     output_filename="S22-IE.png",
     figure_size=(8, 6),
@@ -453,35 +505,27 @@ error_statistics.violin_plot(
 # |%%--%%| <dRiuyCtOh1|8jtfD3m3S4>
 
 import apnet_pt
+from apnet_pt.AtomPairwiseModels.apnet2 import APNet2Model
 
-predicted_charges, predicted_dipoles, predicted_quadruples = apnet_pt.pretrained_models.atom_model_predict(
-    mols=df_hf_sto3g['qcel_molecule'].tolist(),
-    compile=False,
+ap2 = APNet2Model().set_pretrained_model(model_id=0)
+apnet2_ies_predicted = ap2.predict_qcel_mols(
+    mols=df_plot['qcel_molecule'].tolist(),
 )
-# Printing out predicted multipoles from pre-trained models
-print(df_hf_sto3g['qcel_molecule'][0])
-print(f"{predicted_charges[0] = }")
-print(f"{predicted_dipoles[0] = }")
-print(f"{predicted_quadruples[0] = }")
-
-apnet2_ies_predicted = apnet_pt.pretrained_models.apnet2_model_predict(
-    mols=df_hf_sto3g['qcel_molecule'].tolist(),
-    compile=False,
-)
-# [[total, eletrostatic, induction, exchange, dispersion]]
-print(apnet2_ies_predicted[0])
 
 # |%%--%%| <8jtfD3m3S4|nxmLPrfAfx>
 
 # AP-Net2 IE
-df_plot['APNet2'] = apnet2_ies_predicted[:, 0]
+df_plot['APNet2'] = np.sum(apnet2_ies_predicted, axis=1)
 df_plot['APNet2 error'] = (df_plot['APNet2'] - df_plot['reference']).astype(float)
+print(df_plot[['APNet2', 'reference', 'PBE/6-31G*']])
+print(apnet2_ies_predicted)
 error_statistics.violin_plot(
     df_plot,
     df_labels_and_columns={
         "HF/6-31G*": "HF/6-31G* error",
         "PBE/6-31G*": "PBE/6-31G* error",
         "B3LYP/6-31G*": "B3LYP/6-31G* error",
+        "SAPT0/cc-pvdz": "SAPT0/cc-pvdz error",
         "APNet2": "APNet2 error",
     },
     output_filename="S22-IE-AP2.png",
@@ -500,51 +544,63 @@ print(
 )
 print(len(df_plot['qcel_molecule'].tolist()))
 
-ds = pairwise_datasets.apnet2_module_dataset(
+ds2 = pairwise_datasets.apnet2_module_dataset(
     root="data_dir",
     spec_type=None,
     atom_model=apnet_pt.AtomModels.ap2_atom_model.AtomModel().set_pretrained_model(model_id=0),
     qcel_molecules=df_plot['qcel_molecule'].tolist(),
-    energy_labels=df_plot['PBE/6-31G*'].tolist(),
+    energy_labels=[np.array([i]) for i in df_plot['reference'].tolist()],
     skip_compile=True,
     force_reprocess=True,
-    atomic_batch_size=4,
+    atomic_batch_size=8,
     prebatched=False,
     in_memory=True,
     batch_size=2,
     # datapoint_storage_n_objects=4,
 )
 print("APNet2 dataset created")
-print(ds)
-print(ds.data)
+print(ds2)
+print(ds2.training_batch_size)
+# print(ds2.data)
 
 # |%%--%%| <XtMJQEokjd|xXslqNQSRI>
 
 # Transfer Learning APNet2 model on computed QM data
-from apnet_pt.AtomPairwiseModels.apnet2 import APNet2Model
-
-ap2 = APNet2Model(dataset=ds).set_pretrained_model(model_id=0)
-print(ap2)
-
-# |%%--%%| <xXslqNQSRI|5PzkTYRluz>
-
-print(ds)
+print(ds2)
 ap2.train(
-    n_epochs=50,
+    dataset=ds2,
+    n_epochs=10,
     transfer_learning=True,
     skip_compile=True,
     model_path="apnet2_transfer_learning.pt",
+    split_percent=0.8,
 )
 print(ap2)
 
-#|%%--%%| <5PzkTYRluz|KPOeFMBhWm>
+# |%%--%%| <xXslqNQSRI|KPOeFMBhWm>
+
+ap2_best_test = APNet2Model(
+    atom_model=ap2.atom_model,
+    pre_trained_model_path="apnet2_transfer_learning.pt",
+)
+print(ap2_best_test)
 
 # AP-Net2 IE
-apnet2_ies_predicted = ap2.predict_qcel_mols(
-    mols=df_hf_sto3g['qcel_molecule'].tolist(),
+apnet2_ies_predicted_final = ap2.predict_qcel_mols(
+    mols=df_plot['qcel_molecule'].tolist(),
+    batch_size=2,
 )
-df_plot['APNet2'] = apnet2_ies_predicted[:, 0]
-df_plot['APNet2 error'] = (df_plot['APNet2'] - df_plot['reference']).astype(float)
+apnet2_ies_predicted_best_test = ap2_best_test.predict_qcel_mols(
+    mols=df_plot['qcel_molecule'].tolist(),
+    batch_size=2,
+)
+print(apnet2_ies_predicted_final)
+print(apnet2_ies_predicted_best_test)
+df_plot['APNet2 final'] = np.sum(apnet2_ies_predicted_final, axis=1)
+df_plot['APNet2 best test'] = np.sum(apnet2_ies_predicted_best_test, axis=1)
+print(df_plot[['APNet2 final', 'APNet2 best test', 'reference', 'PBE/6-31G*']])
+df_plot['APNet2 final error'] = (df_plot['APNet2 final'] - df_plot['reference']).astype(float)
+df_plot['APNet2 best test error'] = (df_plot['APNet2 best test'] - df_plot['reference']).astype(float)
 
 error_statistics.violin_plot(
     df_plot,
@@ -553,6 +609,8 @@ error_statistics.violin_plot(
         "PBE/6-31G*": "PBE/6-31G* error",
         "B3LYP/6-31G*": "B3LYP/6-31G* error",
         "APNet2": "APNet2 error",
+        "APNet2 final": "APNet2 final error",
+        "APNet2 best test": "APNet2 best test error",
     },
     output_filename="S22-IE-AP2.png",
     figure_size=(4, 4),
@@ -561,8 +619,35 @@ error_statistics.violin_plot(
 # |%%--%%| <KPOeFMBhWm|OVVcYRXWUA>
 
 # Be careful with this for it can corrupt running status...
-# !ps aux | grep qcfractal | awk '{ print $2 }' | xargs kill -9
+!ps aux | grep qcfractal | awk '{ print $2 }' | xargs kill -9
 
-# |%%--%%| <OVVcYRXWUA|5HSrFMKRJh>
+# |%%--%%| <OVVcYRXWUA|ULuCE0r8ED>
+
+# Load in a dataset from a recent Sherrill work (Levels of SAPT II)
+df_LoS = pd.read_pickle("./combined_df_subset_358.pkl")
+print(df_LoS[['Benchmark', 'SAPT2+3(CCD)DMP2 TOTAL ENERGY aqz', 'MP2 IE atz', 'SAPT0 TOTAL ENERGY adz' ]])
+
+# Limit to 100 molecules with maximum of 16 atoms to keep computational cost down
+df_LoS['size'] = df_LoS['atomic_numbers'].apply(lambda x: len(x))
+df_LoS = df_LoS[df_LoS['size'] <= 16]
+df_LoS = df_LoS.sample(100, random_state=42, axis=0).copy()
+df_LoS.reset_index(drop=True, inplace=True)
+print(df_LoS['size'].describe())
+
+# Create QCElemntal Molecules to generate the dataset
+def qcel_mols(row):
+    """
+    Convert the row to a qcel molecule
+    """
+    atomic_numbers = [row['atomic_numbers'][row['monAs']], row['atomic_numbers'][row['monBs']]]
+    coords = [row['coordinates'][row['monAs']], row['coordinates'][row['monBs']]]
+    cm = [
+        [row['monA_charge'], row['monA_multiplicity']],
+        [row['monB_charge'], row['monB_multiplicity']],
+     ]
+    return tools.convert_pos_carts_to_mol(atomic_numbers, coords, cm)
+df_LoS['qcel_molecule'] = df_LoS.apply(qcel_mols, axis=1)
+
+# |%%--%%| <ULuCE0r8ED|5HSrFMKRJh>
 
 
