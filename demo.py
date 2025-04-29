@@ -9,7 +9,11 @@ through CyberShuttle.
 The second half of this demo shows how one can consume the generated data
 to train AP-Net2 and dAPNet2 models through QCMLForge. 
 °°°"""
-#|%%--%%| <tveJZTmZdq|sb2BSlStsm>
+#|%%--%%| <tveJZTmZdq|51QarqdZiC>
+
+!conda env create -f environment.yml
+
+#|%%--%%| <51QarqdZiC|sb2BSlStsm>
 import psi4
 from pprint import pprint as pp
 import pandas as pd
