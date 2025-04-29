@@ -3,30 +3,30 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - numpy=2.*
-  - pandas=2.*
+  - numpy=2.2.5
+  - pandas=2.2.3
   - pip
-  - psycopg2
-  - postgresql
+  - psycopg2=2.9.9
+  - postgresql=17.4
   - pytest
   - python>=3.10
-  - psi4
+  - psi4=1.9.1
   - pytorch-cpu=2.5.1
-  - jupyter
+  - jupyter=1.1.1
   - requests
   - setuptools
-  - torchaudio
-  - torchtriton
-  - torchvision
-  - pytorch_geometric
+  - torchaudio=2.5.1
+  - torchtriton=2.3.0
+  - torchvision=0.20.1
+  - pytorch_geometric=2.6.1
   - pytorch_scatter=2.1.2=cpu*
-  - pytorch-minimize
-  - matplotlib
+  - pytorch-minimize=0.0.2
+  - matplotlib=3.10.1
   - pydantic=1,<2
   - scipy=1.15.*
   - tqdm
   - pip:
-      - cdsg-tools
+      - cdsg-tools==0.0.1
       - qm-tools-aw==1.4.5
       - qcmlforge==0.0.6
       - qcfractal==0.59
