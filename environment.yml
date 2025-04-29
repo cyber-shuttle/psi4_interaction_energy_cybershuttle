@@ -16,7 +16,6 @@ dependencies:
   - requests
   - setuptools
   - torchaudio=2.5.1
-  - torchtriton=2.3.0
   - torchvision=0.20.1
   - pytorch_geometric=2.6.1
   - pytorch_scatter=2.1.2=cpu*
@@ -26,7 +25,7 @@ dependencies:
   - scipy=1.15.*
   - tqdm
   - pip:
-      - cdsg-tools==0.0.1
+      - cdsg-tools==0.0.2
       - qm-tools-aw==1.4.5
       - qcmlforge==0.0.6
       - qcfractal==0.59

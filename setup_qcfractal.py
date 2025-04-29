@@ -132,7 +132,7 @@ executors:
       conda:
         - p4_qcml      # name of conda env used for task execution; see below for example
     worker_init:
-      - source {QCF_BASE_FOLDER}/worker-init.sh
+      - source {QCF_BASE_FOLDER}/worker.sh
 """
         )
     if start:

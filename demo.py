@@ -1,4 +1,7 @@
-#|%%--%%| <FHk2C2mAci|tveJZTmZdq>
+
+
+
+# |%%--%%| <FHk2C2mAci|tveJZTmZdq>
 r"""°°°
 # QCArchive+QCMLForge Demo with CyberShuttle
 
@@ -9,11 +12,8 @@ through CyberShuttle.
 The second half of this demo shows how one can consume the generated data
 to train AP-Net2 and dAPNet2 models through QCMLForge. 
 °°°"""
-#|%%--%%| <tveJZTmZdq|51QarqdZiC>
+# |%%--%%| <tveJZTmZdq|sb2BSlStsm>
 
-!conda env create -f environment.yml
-
-#|%%--%%| <51QarqdZiC|sb2BSlStsm>
 import psi4
 from pprint import pprint as pp
 import pandas as pd
@@ -34,7 +34,7 @@ manual_seed(42)
 
 h2kcalmol = qcel.constants.hartree2kcalmol
 
-#|%%--%%| <sb2BSlStsm|78H3oHPXBB>
+# |%%--%%| <sb2BSlStsm|78H3oHPXBB>
 r"""°°°
 # QCArchive Setup
 °°°"""
@@ -94,12 +94,11 @@ setup_qcarchive_qcfractal(
 # NOTE kill server when finished by removing the # and executing:
 # !ps aux | grep qcfractal | awk '{ print $2 }' | xargs kill -9
 
-#|%%--%%| <2gmdKuBAuk|X31FadtbG5>
+# |%%--%%| <2gmdKuBAuk|X31FadtbG5>
 r"""°°°
 # QCArchive single point example
 °°°"""
 # |%%--%%| <X31FadtbG5|hMCmRgdGJ4>
-
 
 # Running a single job
 client = PortalClient("http://localhost:7777", verify=False)
@@ -140,7 +139,7 @@ client.add_singlepoints(
 #     pp(rec.dict)
 #     pp(rec.error)
 
-#|%%--%%| <hMCmRgdGJ4|6DmD5wp1nB>
+# |%%--%%| <hMCmRgdGJ4|6DmD5wp1nB>
 r"""°°°
 # QCArchive dataset examples
 °°°"""
@@ -175,7 +174,7 @@ geoms = df_LoS['qcel_molecule'].tolist()
 ref_IEs = df_LoS['Benchmark'].tolist()
 sapt0_adz = (df_LoS['SAPT0 TOTAL ENERGY adz'] * h2kcalmol).tolist()
 
-#|%%--%%| <Z0wXrcgRq8|iwmcvViziS>
+# |%%--%%| <Z0wXrcgRq8|iwmcvViziS>
 r"""°°°
 ## Singlepoint Dataset
 °°°"""
@@ -268,7 +267,7 @@ print(f"Submitted {ds_name} dataset")
 # Check the status of the dataset - can repeatedly run this to see the progress
 ds.status()
 
-#|%%--%%| <2JMCNlehez|kT14mJyNqJ>
+# |%%--%%| <2JMCNlehez|kT14mJyNqJ>
 r"""°°°
 ## Manybody Dataset
 °°°"""
@@ -359,7 +358,7 @@ pp(ds)
 pp(ds_mb)
 pp(ds_mb.computed_properties)
 
-#|%%--%%| <ChCOdcBiXj|xgdzc0Klhx>
+# |%%--%%| <ChCOdcBiXj|xgdzc0Klhx>
 r"""°°°
 # Data Assembly
 
@@ -512,7 +511,7 @@ pd.set_option('display.max_rows', None)
 print(df_plot[['PBE/6-31G*', 'SAPT0/cc-pvdz', 'reference', "SAPT0/aug-cc-pvdz"]])
 print(df_plot[['PBE/6-31G* error', 'SAPT0/cc-pvdz error', "SAPT0/aug-cc-pvdz error"]].describe())
 
-#|%%--%%| <XT87RegBfm|6ziYQ8PdtF>
+# |%%--%%| <XT87RegBfm|6ziYQ8PdtF>
 r"""°°°
 # Plotting the interaction energy errors
 °°°"""
@@ -531,10 +530,12 @@ error_statistics.violin_plot(
     figure_size=(6, 6),
     x_label_fontsize=16,
     ylim=(-15, 15),
-    ylabel=r"IE Error vs. CCSD(T)/CBS ($\mathrm{kcal\cdot mol^{-1}}$)",
+    rcParams={},
+    usetex=False,
+    ylabel=r"IE Error vs. CCSD(T)/CBS (kcal/mol)",
 )
 
-#|%%--%%| <dRiuyCtOh1|NoxyyvkpUK>
+# |%%--%%| <dRiuyCtOh1|NoxyyvkpUK>
 r"""°°°
 # QCMLForge
 
@@ -570,9 +571,11 @@ error_statistics.violin_plot(
         "APNet2": "APNet2 error",
     },
     output_filename="S22-IE-AP2.png",
+    rcParams={},
+    usetex=False,
     figure_size=(4, 4),
+    ylabel=r"IE Error vs. CCSD(T)/CBS (kcal/mol)",
 )
-
 
 # |%%--%%| <nxmLPrfAfx|XtMJQEokjd>
 
@@ -595,7 +598,7 @@ ds2 = pairwise_datasets.apnet2_module_dataset(
 )
 print(ds2)
 
-#|%%--%%| <XtMJQEokjd|4wjE6QG52G>
+# |%%--%%| <XtMJQEokjd|4wjE6QG52G>
 r"""°°°
 ## Transfer Learning
 °°°"""
@@ -631,10 +634,13 @@ error_statistics.violin_plot(
         "APNet2 transfer": "APNet2 transfer error",
     },
     output_filename="S22-IE-AP2.png",
+    rcParams={},
+    usetex=False,
     figure_size=(6, 4),
+    ylabel=r"IE Error vs. CCSD(T)/CBS (kcal/mol)",
 )
 
-#|%%--%%| <KPOeFMBhWm|M3Q6tUC2AJ>
+# |%%--%%| <KPOeFMBhWm|M3Q6tUC2AJ>
 r"""°°°
 ## $\Delta$AP-Net2
 °°°"""
@@ -665,7 +671,7 @@ ds = dapnet2_module_dataset_apnetStored(
 )
 print(ds)
 
-#|%%--%%| <ROLVxSHnj2|jfEVLnbL5w>
+# |%%--%%| <ROLVxSHnj2|jfEVLnbL5w>
 
 from apnet_pt.AtomPairwiseModels.dapnet2 import dAPNet2Model
 
@@ -680,7 +686,7 @@ dap2.train(
     split_percent=0.6,
 )
 
-#|%%--%%| <jfEVLnbL5w|BbSVmmebsN>
+# |%%--%%| <jfEVLnbL5w|BbSVmmebsN>
 
 dAPNet2_ies_predicted_transfer = dap2.predict_qcel_mols(
     mols=df_plot['qcel_molecule'].tolist(),
@@ -701,8 +707,11 @@ error_statistics.violin_plot(
         "APNet2 transfer": "APNet2 transfer error",
         "dAPNet2 HF/6-31G*->CCSD(T)/CBS": "dAPNet2 error",
     },
-    output_filename="S22-IE-AP2-dAP2.png",
+    
+    rcParams={},
+    usetex=False,
     figure_size=(6, 4),
+    ylabel=r"IE Error vs. CCSD(T)/CBS (kcal/mol)",
 )
 
 # |%%--%%| <BbSVmmebsN|OVVcYRXWUA>
@@ -710,7 +719,7 @@ error_statistics.violin_plot(
 # Be careful with this for it can corrupt running status...
 # !ps aux | grep qcfractal | awk '{ print $2 }' | xargs kill -9
 
-#|%%--%%| <OVVcYRXWUA|H2TTLmA061>
+# |%%--%%| <OVVcYRXWUA|H2TTLmA061>
 r"""°°°
 # The end...
 °°°"""
