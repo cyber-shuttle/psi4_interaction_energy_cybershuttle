@@ -1,0 +1,48 @@
+project:
+  name: "QCArchive+QCMLForge through Cybershuttle"
+  description: "Demonstrate how to run high-throughput quantum chemistry calculations using Cybershuttle and QCArchive for training ML models with QCMLForge"
+  homepage: https://github.com/Awallace3/psi4_interaction_energy_cybershuttle
+  authors:
+    - awallace43@gatech.edu
+  tags:
+    - cybershuttle
+    - apache-airavata
+    - reference
+
+workspace:
+  location: /workspace
+  resources:
+    min_cpu: 4
+    min_gpu: 0
+    min_mem: 0
+    gpu_mem: 0
+  model_collection:
+    - source: cybershuttle
+      identifier: cybershuttle-reference
+      mount_point: /cybershuttle_data/cybershuttle-reference
+  data_collection: []
+
+additional_dependencies:
+  conda:
+    - numpy=2.2.5
+    - pandas=2.2.3
+    - pip
+    - psycopg2=2.9.9
+    - postgresql=17.4
+    - pytest
+    - python>=3.10
+    - psi4=1.9.1
+    - pytorch-cpu=2.5.1
+    - jupyter=1.1.1
+    - requests
+    - setuptools
+    - torchaudio=2.5.1
+    - torchvision=0.20.1
+    - pytorch_geometric=2.6.1
+    - pytorch_scatter=2.1.2=cpu*
+    - pytorch-minimize=0.0.2
+    - matplotlib=3.10.1
+    - pydantic=1,<2
+    - scipy=1.15.*
+    - tqdm
+  pip: [cdsg-tools==0.0.2 qm-tools-aw==1.4.5 qcmlforge==0.0.6 qcfractal==0.59 qcmanybody qcfractalcompute==0.59]
