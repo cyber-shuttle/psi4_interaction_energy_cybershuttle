@@ -707,7 +707,7 @@ error_statistics.violin_plot(
         "APNet2 transfer": "APNet2 transfer error",
         "dAPNet2 HF/6-31G*->CCSD(T)/CBS": "dAPNet2 error",
     },
-    
+    output_filename="S22-IE-AP2-dAP2.png",
     rcParams={},
     usetex=False,
     figure_size=(6, 4),
