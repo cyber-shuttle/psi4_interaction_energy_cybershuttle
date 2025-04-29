@@ -705,7 +705,7 @@ error_statistics.violin_plot(
         "SAPT0/aug-cc-pvdz": "SAPT0/aug-cc-pvdz error",
         "APNet2": "APNet2 error",
         "APNet2 transfer": "APNet2 transfer error",
-        "dAPNet2 HF/6-31G*->CCSD(T)/CBS": "dAPNet2 error",
+        "dAPNet2 HF/6-31G* to CCSD(T)/CBS": "dAPNet2 error",
     },
     output_filename="S22-IE-AP2-dAP2.png",
     rcParams={},
