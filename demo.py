@@ -1,4 +1,9 @@
+%pip install --force-reinstall -q "airavata-python-sdk[notebook]"
+import airavata_jupyter_magic
 
+%authenticate
+%request_runtime hpc_cpu --file=cybershuttle.yml --walltime=60 --use=expanse:shared
+%switch_runtime hpc_cpu
 
 
 # |%%--%%| <FHk2C2mAci|tveJZTmZdq>
