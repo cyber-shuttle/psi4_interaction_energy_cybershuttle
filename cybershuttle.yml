@@ -8,9 +8,10 @@ project:
     - spamidig@gatech.edu
     - lori.burns@chemistry.gatech.edu
   tags:
-    - cybershuttle
-    - apache-airavata
-    - reference
+    - psi4
+    - qcarchive
+    - qcmlforge
+    - CISSE25
 
 workspace:
   location: /workspace
