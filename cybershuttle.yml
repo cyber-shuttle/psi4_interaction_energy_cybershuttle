@@ -16,14 +16,11 @@ project:
 workspace:
   location: /workspace
   resources:
-    min_cpu: 4
+    min_cpu: 8
+    min_mem: 16384
     min_gpu: 0
-    min_mem: 16000
     gpu_mem: 0
-  model_collection:
-    - source: cybershuttle
-      identifier: cybershuttle-reference
-      mount_point: /cybershuttle_data/cybershuttle-reference
+  model_collection: []
   data_collection: []
 
 additional_dependencies:
