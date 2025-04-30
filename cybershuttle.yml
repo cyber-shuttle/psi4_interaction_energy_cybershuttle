@@ -4,6 +4,9 @@ project:
   homepage: https://github.com/Awallace3/psi4_interaction_energy_cybershuttle
   authors:
     - awallace43@gatech.edu
+    - yasith@gatech.edu
+    - spamidig@gatech.edu
+    - lori.burns@chemistry.gatech.edu
   tags:
     - cybershuttle
     - apache-airavata
@@ -14,7 +17,7 @@ workspace:
   resources:
     min_cpu: 4
     min_gpu: 0
-    min_mem: 0
+    min_mem: 16
     gpu_mem: 0
   model_collection:
     - source: cybershuttle
