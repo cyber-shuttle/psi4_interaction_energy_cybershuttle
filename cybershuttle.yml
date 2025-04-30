@@ -45,4 +45,10 @@ additional_dependencies:
     - pydantic=1,<2
     - scipy=1.15.*
     - tqdm
-  pip: [cdsg-tools==0.0.2 qm-tools-aw==1.4.5 qcmlforge==0.0.6 qcfractal==0.59 qcmanybody qcfractalcompute==0.59]
+  pip: 
+      - cdsg-tools==0.0.2
+      - qm-tools-aw==1.4.5
+      - qcmlforge==0.0.6
+      - qcfractal==0.59
+      - qcmanybody
+      - qcfractalcompute==0.59
