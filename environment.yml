@@ -9,7 +9,7 @@ dependencies:
   - psycopg2=2.9.9
   - postgresql=17.4
   - pytest
-  - python>=3.10
+  - python=3.10
   - psi4=1.9.1
   - pytorch-cpu=2.5.1
   - jupyter=1.1.1
@@ -21,13 +21,13 @@ dependencies:
   - pytorch_scatter=2.1.2=cpu*
   - pytorch-minimize=0.0.2
   - matplotlib=3.10.1
-  - pydantic=1,<2
+  - pydantic=1
   - scipy=1.15.*
   - tqdm
+  - qcfractal==0.59
+  - qcfractalcompute==0.59
   - pip:
+      - qcmanybody
       - cdsg-tools==0.0.2
       - qm-tools-aw==1.4.5
       - qcmlforge==0.0.6
-      - qcfractal==0.59
-      - qcmanybody
-      - qcfractalcompute==0.59

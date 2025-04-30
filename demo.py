@@ -1,12 +1,23 @@
-%pip install --force-reinstall -q "airavata-python-sdk[notebook]"
+
+#%pip install --force-reinstall -q "airavata-python-sdk[notebook]"
 import airavata_jupyter_magic
 
+#|%%--%%| <FHk2C2mAci|VonilTFkTU>
+
 %authenticate
+
+#|%%--%%| <VonilTFkTU|1sXw3fhOc3>
+
 %request_runtime hpc_cpu --file=cybershuttle.yml --walltime=60 --use=expanse:shared
 %switch_runtime hpc_cpu
 
+#|%%--%%| <1sXw3fhOc3|P9dkAdyjBc>
 
-# |%%--%%| <FHk2C2mAci|tveJZTmZdq>
+%cd /workspace
+%copy_data source=local:setup_qcfractal.py target=hpc_cpu:setup_qcfractal.py
+%copy_data source=local:__init__.py target=hpc_cpu:__init__.py
+
+# |%%--%%| <P9dkAdyjBc|tveJZTmZdq>
 r"""°°°
 # QCArchive+QCMLForge Demo with CyberShuttle
 
@@ -38,6 +49,7 @@ from torch import manual_seed
 manual_seed(42)
 
 h2kcalmol = qcel.constants.hartree2kcalmol
+print('Imports')
 
 # |%%--%%| <sb2BSlStsm|78H3oHPXBB>
 r"""°°°
