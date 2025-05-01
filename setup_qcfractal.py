@@ -40,6 +40,7 @@ def setup_qcarchive_qcfractal(
     worker_sh="""#!/usr/bin/bash
 conda activate p4_qcml
     """,
+    conda_env="p4_qcml",
     start=False,
 ):
     """
@@ -103,6 +104,14 @@ conda activate p4_qcml
     print(res.decode("utf-8"))
     with open(f"{QCF_BASE_FOLDER}/worker.sh", "w") as f:
         f.write("""        """)
+    if conda_env:
+        conda_env_str = f"""environments:
+            use_manager_environment: False
+          conda:
+            - {conda_env}"""
+    else:
+        conda_env_str = """environments:
+            use_manager_environment: True"""
     with open(f"{QCF_BASE_FOLDER}/resources.yml", "w") as f:
         f.write(
             f"""
@@ -127,10 +136,7 @@ executors:
     max_workers: {resources_config.get('max_workers', '4')}
     queue_tags:                 
       - '*'
-    environments:
-      use_manager_environment: False   # don't use the manager environment for task execution
-      conda:
-        - p4_qcml      # name of conda env used for task execution; see below for example
+    {conda_env_str}
     worker_init:
       - source {QCF_BASE_FOLDER}/worker.sh
 """

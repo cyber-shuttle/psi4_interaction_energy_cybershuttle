@@ -24,9 +24,9 @@ dependencies:
   - pydantic=1
   - scipy=1.15.*
   - tqdm
-  - qcfractal==0.59
-  - qcfractalcompute==0.59
   - pip:
+      - qcfractal==0.59
+      - qcfractalcompute==0.59
       - qcmanybody
       - cdsg-tools==0.0.2
       - qm-tools-aw==1.4.5
