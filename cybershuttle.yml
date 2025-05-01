@@ -17,9 +17,9 @@ workspace:
   location: /workspace
   resources:
     # min_cpu: 24
-    min_cpu: 4
+    min_cpu: 32
     min_gpu: 0
-    min_mem: 8000
+    min_mem: 64000
     # min_mem: 48000
     gpu_mem: 0
   model_collection:
