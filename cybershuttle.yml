@@ -49,7 +49,7 @@ additional_dependencies:
   pip: 
       - cdsg-tools==0.0.2
       - qm-tools-aw==1.4.5
-      - qcmlforge==0.0.6
+      - qcmlforge==0.0.8
       - qcfractal==0.59
       - qcmanybody
       - qcfractalcompute==0.59
