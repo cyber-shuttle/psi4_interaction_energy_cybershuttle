@@ -14,7 +14,6 @@ project:
     - CISSE25
 
 workspace:
-  location: /workspace
   resources:
     min_cpu: 32
     min_gpu: 0
@@ -24,6 +23,7 @@ workspace:
   data_collection: []
 
 additional_dependencies:
+  modules: []
   conda:
     - numpy=2.2.5
     - pandas=2.2.3
