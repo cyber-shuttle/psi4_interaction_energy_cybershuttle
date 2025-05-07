@@ -15,9 +15,9 @@ project:
 
 workspace:
   resources:
-    min_cpu: 24
+    min_cpu: 16
     min_gpu: 0
-    min_mem: 40000
+    min_mem: 32000
     gpu_mem: 0
   model_collection: []
   data_collection: []
@@ -47,7 +47,7 @@ additional_dependencies:
     - scipy=1.15.*
     - tqdm
   pip: 
-      - cdsg-tools==0.0.2
+      - cdsg-tools==0.0.4
       - qm-tools-aw==1.4.5
       - qcmlforge==0.0.8
       - qcfractal==0.59
