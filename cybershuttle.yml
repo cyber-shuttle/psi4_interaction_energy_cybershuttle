@@ -12,7 +12,7 @@ project:
     - qcarchive
     - qcmlforge
     - CISSE25
-
+ 
 workspace:
   resources:
     min_cpu: 16
@@ -21,7 +21,7 @@ workspace:
     gpu_mem: 0
   model_collection: []
   data_collection: []
-
+ 
 additional_dependencies:
   modules: []
   conda:
